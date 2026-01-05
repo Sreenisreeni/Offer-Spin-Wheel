@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fantasy Spin & Win</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* 🌌 BACKGROUND */
+body{
+  margin:0;
+  height:100vh;
+  background:url("a.jpeg");
+  background-size:cover;
+  background-position:center;
+  animation:bgMove 60s linear infinite;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Poppins,sans-serif;
+  color:#fff;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ✨ MAGICAL SHOWER RAIN */
+body::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:
+    radial-gradient(circle, rgba(255,215,0,0.8) 2px, transparent 3px),
+    radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 2px);
+  background-size: 60px 60px, 120px 120px;
+  animation:shower 12s linear infinite;
+  opacity:0.5;
+  z-index:0;
+}
+
+@keyframes shower{
+  from{background-position:0 0, 0 0;}
+  to{background-position:0 1000px, 0 1400px;}
+}
+
+@keyframes bgMove{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+/* 🧊 GLASS CARD */
+.container{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  padding:30px;
+  border-radius:30px;
+  background:rgba(0,0,0,0.45);
+  backdrop-filter:blur(14px);
+  box-shadow:0 0 50px rgba(255,215,0,0.6);
+}
+
+h2{
+  text-shadow:0 0 15px gold;
+}
+
+input{
+  width:90%;
+  padding:14px;
+  margin:10px 0;
+  border-radius:25px;
+  border:none;
+  outline:none;
+  font-size:16px;
+}
+
+/* 🎡 WHEEL AREA */
+.wheel-box{
+  position:relative;
+  width:300px;
+  height:300px;
+  margin:25px auto;
+}
+
+/* ✨ MAGIC OUTER RING */
+.wheel-box::before{
+  content:"";
+  position:absolute;
+  inset:-12px;
+  border-radius:50%;
+  background:conic-gradient(
+    gold,
+    #ff00ff,
+    #00ffff,
+    gold
+  );
+  animation:ringRotate 6s linear infinite;
+  filter:blur(3px);
+  z-index:1;
+}
+
+@keyframes ringRotate{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+
+/* 🎡 MAIN WHEEL */
+.wheel{
+  position:relative;
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  background:conic-gradient(
+    #ffd700 0deg 60deg,
+    #ff4e50 60deg 120deg,
+    #36d1dc 120deg 180deg,
+    #a18cd1 180deg 240deg,
+    #fbc2eb 240deg 300deg,
+    #00f2fe 300deg 360deg
+  );
+  box-shadow:0 0 40px gold,inset 0 0 25px rgba(255,255,255,0.8);
+  transition:transform 4.2s ease-out;
+  z-index:2;
+}
+
+/* 💎 CENTER CRYSTAL */
+.wheel::after{
+  content:"✦";
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:radial-gradient(circle,#fff,#ffd700);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  color:#000;
+  box-shadow:0 0 20px gold;
+}
+
+/* 🔺 POINTER */
+.pointer{
+  position:absolute;
+  top:-28px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:18px solid transparent;
+  border-right:18px solid transparent;
+  border-bottom:36px solid gold;
+  filter:drop-shadow(0 0 15px gold);
+  z-index:5;
+}
+
+/* 🔘 BUTTON */
+button{
+  padding:14px 40px;
+  border:none;
+  border-radius:35px;
+  font-size:18px;
+  background:linear-gradient(45deg,gold,orange);
+  box-shadow:0 0 25px gold;
+  cursor:pointer;
+  transition:transform 0.3s, box-shadow 0.3s;
+}
+
+button:hover{
+  transform:scale(1.1);
+  box-shadow:0 0 45px gold;
+}
+</style>
+</head>
+
+<body>
+
+<audio id="spinSound" src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1930.mp3"></audio>
+
+<div class="container">
+  <h2>✨ Fantasy Spin & Win ✨</h2>
+
+  <input id="phoneInput" placeholder="Enter Phone Number">
+
+  <div class="wheel-box">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+  </div>
+
+  <button id="spinBtn">SPIN 🎡</button>
+</div>
+
+<script>
+const offers=[
+  "700 Offer",
+  "500 Extended for 2 Days",
+  "30% Offer",
+  "One More Spin",
+  "500 Offer",
+  "500 OFF (Current & Next)"
+];
+
+const wheel=document.getElementById("wheel");
+const spinBtn=document.getElementById("spinBtn");
+const spinSound=document.getElementById("spinSound");
+const phoneInput=document.getElementById("phoneInput");
+
+let wonOffer="";
+
+spinBtn.onclick=()=>{
+  const phone=phoneInput.value.trim();
+  if(!phone || phone.length<10){
+    alert("Enter valid phone number");
+    return;
+  }
+  if(localStorage.getItem(phone)){
+    alert("Spin already used!");
+    return;
+  }
+
+  spinSound.play();
+  spinBtn.disabled=true;
+
+  const deg=360*6 + Math.random()*360;
+  wheel.style.transform=`rotate(${deg}deg)`;
+
+  setTimeout(()=>{
+    const index=Math.floor(((360-(deg%360))/60))%offers.length;
+    wonOffer=offers[index];
+    localStorage.setItem(phone,"used");
+    sendWhatsApp(phone);
+  },4200);
+};
+
+function sendWhatsApp(phone){
+  const admin="917904242749";
+  const msg=
+`🎡 Fantasy Spin & Win Result
+📞 Customer Phone: ${phone}
+🎁 Offer Won: ${wonOffer}`;
+
+  window.open(
+    `https://wa.me/${admin}?text=${encodeURIComponent(msg)}`,
+    "_blank"
+  );
+}
+</script>
+
+</body>
+</html>
