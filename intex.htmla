@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fantasy Spin & Win</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* 🌌 Background with moving stars */
+body{
+  margin:0;
+  height:100vh;
+  background:
+    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)),
+    url("https://images.unsplash.com/photo-1519681393784-d120267933ba");
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Poppins,sans-serif;
+  color:#fff;
+  overflow:hidden;
+}
+
+/* ⭐ Stars animation */
+body::before{
+  content:"";
+  position:absolute;
+  width:200%;
+  height:200%;
+  background:url("https://i.imgur.com/7b1YzXU.png");
+  animation:stars 60s linear infinite;
+  opacity:0.3;
+}
+@keyframes stars{
+  from{transform:translateY(0);}
+  to{transform:translateY(-1000px);}
+}
+
+.container{
+  position:relative;
+  text-align:center;
+  padding:20px;
+  border-radius:25px;
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(8px);
+  box-shadow:0 0 40px rgba(255,215,0,0.4);
+  z-index:2;
+}
+
+/* 🏷 Logo */
+.logo{
+  width:90px;
+  margin-bottom:10px;
+  filter:drop-shadow(0 0 10px gold);
+}
+
+input{
+  width:90%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:25px;
+  border:none;
+  outline:none;
+}
+
+.wheel-box{
+  position:relative;
+  width:280px;
+  height:280px;
+  margin:20px auto;
+}
+
+.wheel{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  background:conic-gradient(
+    #ffd700 0deg 60deg,
+    #ff4e50 60deg 120deg,
+    #36d1dc 120deg 180deg,
+    #a18cd1 180deg 240deg,
+    #fbc2eb 240deg 300deg,
+    #00f2fe 300deg 360deg
+  );
+  box-shadow:0 0 40px gold, inset 0 0 20px #fff;
+  transition:transform 4s ease-out;
+}
+
+.pointer{
+  position:absolute;
+  top:-20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:15px solid transparent;
+  border-right:15px solid transparent;
+  border-bottom:30px solid gold;
+}
+
+button{
+  padding:12px 30px;
+  border:none;
+  border-radius:30px;
+  font-size:16px;
+  background:linear-gradient(45deg,gold,orange);
+  box-shadow:0 0 20px gold;
+  cursor:pointer;
+}
+
+.result{
+  margin-top:15px;
+  font-size:18px;
+}
+
+/* 🎁 Popup */
+.popup{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.8);
+  align-items:center;
+  justify-content:center;
+  z-index:5;
+}
+.popup-box{
+  background:#111;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 0 30px gold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔊 Spin sound -->
+<audio id="spinSound" src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1930.mp3"></audio>
+
+<div class="container">
+  <img src="https://i.imgur.com/8Km9tLL.png" class="logo">
+  <h2>✨ Spin & Win ✨</h2>
+
+  <input id="name" placeholder="Your Name">
+  <input id="phone" placeholder="Phone Number">
+
+  <div class="wheel-box">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+  </div>
+
+  <button id="spinBtn">SPIN 🎡</button>
+  <div class="result" id="result"></div>
+</div>
+
+<!-- 🎁 Gift popup -->
+<div class="popup" id="popup">
+  <div class="popup-box">
+    <h2 id="popupText"></h2>
+    <button onclick="sendWhatsApp()">Claim on WhatsApp</button>
+  </div>
+</div>
+
+<script>
+const offers=[
+"700 Offer",
+"500 Extended for 2 Days",
+"30% Offer",
+"One More Spin",
+"500 Offer",
+"500 OFF (Current & Next)"
+];
+
+let wonOffer="";
+
+spinBtn.onclick=()=>{
+  const name=nameInput.value.trim();
+  const phone=phoneInput.value.trim();
+
+  if(!name||!phone){alert("Enter details");return;}
+  if(localStorage.getItem(phone)){alert("Spin already used");return;}
+
+  spinSound.play();
+  spinBtn.disabled=true;
+
+  const deg=360*5+Math.random()*360;
+  wheel.style.transform=`rotate(${deg}deg)`;
+
+  setTimeout(()=>{
+    const index=Math.floor(((360-(deg%360))/60))%offers.length;
+    wonOffer=offers[index];
+    localStorage.setItem(phone,"used");
+    popupText.innerText="🎁 You Won: "+wonOffer;
+    popup.style.display="flex";
+  },4200);
+};
+
+function sendWhatsApp(){
+  const msg=`Hi 👋 I spun your fantasy wheel 🎡%0A🎁 Offer Won: ${wonOffer}`;
+  window.location.href=`https://wa.me/91XXXXXXXXXX?text=${msg}`;
+}
+</script>
+
+</body>
+    </html>
